@@ -9,21 +9,36 @@ const Shop = () => {
     const [products, setProducts] = useState([])
     const [cart, setCart] = useState([])
     const [currentPage, setCurrentPage]= useState(0)
-    const [itemsPerPage, setItemsPerPage] = useState(pageItems)
+    const [itemsPerPage, setItemsPerPage] = useState(10)
     const { totalProducts } = useLoaderData()
     console.log(totalProducts)
 
-    const pageItems = 10;
-    const totalPages = Math.ceil(totalProducts / pageItems)
+    // const pageItems = 10;
+    const totalPages = Math.ceil(totalProducts / itemsPerPage)
     const pageNumber = [...Array(totalPages).keys()]
     console.log(pageNumber)
-    const option = [10, 15, 20]
+    const options = [5, 10, 15, 20]
+
+    // useEffect(() => {
+    //     fetch('http://localhost:5000/products')
+    //         .then(res => res.json())
+    //         .then(data => setProducts(data))
+    // }, [])
 
     useEffect(() => {
-        fetch('http://localhost:5000/products')
-            .then(res => res.json())
-            .then(data => setProducts(data))
-    }, [])
+        // Function to fetch data from API
+        const fetchData = async () => {
+          try {
+            const response = await fetch(`http://localhost:5000/products?page=${currentPage}&limit=${itemsPerPage}`);
+            const jsonData = await response.json();
+            setProducts(jsonData);
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+        };
+    
+        fetchData();
+      }, [currentPage, itemsPerPage]);
 
     useEffect(() => {
         const getCartData = getShoppingCart()
@@ -61,6 +76,11 @@ const Shop = () => {
         deleteShoppingCart()
     }
 
+    const onChangeHandle =(event)=>{
+        setItemsPerPage(parseInt(event.target.value))
+        setCurrentPage(0)
+    }
+
     return (
         <>
             <div className='shop-container'>
@@ -82,11 +102,19 @@ const Shop = () => {
                 <p>current page: {currentPage}</p>
                 {
                     pageNumber.map(page=> <button 
+                        className={currentPage === page ? "selected" : ''}
                         onClick={()=>setCurrentPage(page)}
                         key={page}>{page}</button> )
                 }
-                <select name="" id="">
-
+                <select value={itemsPerPage} onChange={onChangeHandle}>
+                    {
+                        options.map(option=>
+                            (<option key={option} value={option}>
+                                {option}
+                            </option>)
+                                // console.log(option)
+                        )
+                    }
                 </select>
             </div>
         </>
