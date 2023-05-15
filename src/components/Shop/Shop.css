@@ -17,3 +17,8 @@
 .cart-container{
     width: 160px;
 }
+
+.pagination{
+    text-align: center;
+    margin-bottom: 20px;
+}
